@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>⚽ WhatsApp Game Day – v1.0 (Formatter)</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<style>
+  :root { --bg:#0f1115; --panel:#161a22; --muted:#8d96a8; --text:#e7ecf3; --accent:#4da3ff; --ok:#35c759; --warn:#ffcc00; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; padding: 20px; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+  }
+  h1 { font-size: 20px; margin: 0 0 10px; letter-spacing:.2px; }
+  .sub { color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: 1fr; max-width: 1100px; margin: 0 auto; }
+  .card { background: #121724; border: 1px solid #222733; border-radius: 12px; padding: 14px; }
+  input { width: 100%; background: #0c0f14; color: var(--text); border: 1px solid #1f2530; border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  label { display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .output { white-space: pre-wrap; background:#0b0e13; border:1px dashed #2a3140; border-radius:10px; padding:14px; font-size:14px; line-height:1.45; min-height: 180px; }
+  .row { display:flex; gap: 10px; flex-wrap: wrap; }
+  button { background: var(--accent); color: #08111d; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+  button.secondary { background: #232a39; color: var(--text); border: 1px solid #2f3750; }
+  button.good { background: var(--ok); color: #031105; }
+  button.warn { background: var(--warn); color: #140d00; }
+  .footer { color: var(--muted); font-size: 12px; text-align:center; margin-top: 8px; }
+  .hdr { font-weight:700; margin:0 0 8px; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div>
+      <h1>⚽ WhatsApp Game Day – v1.0 (Formatter)</h1>
+      <div class="sub">Stable build — instant preview, strict formatting, working Copy/Share/WhatsApp</div>
+    </div>
+
+    <div class="card">
+      <div class="hdr">🧾 Fill in details</div>
+      <div class="fields">
+        <div><label for="titleSuffix">📢 Title Suffix (after “Game Day –”)</label><input id="titleSuffix" placeholder="e.g., Gameday JCL"></div>
+        <div><label for="home">🏠 Home Team</label><input id="home" placeholder="e.g., Villarreal FC"></div>
+        <div><label for="away">🛫 Away Team</label><input id="away" placeholder="e.g., Barcelon FC"></div>
+        <div><label for="date">📅 Date</label><input id="date" placeholder="e.g., Saturday 5th December"></div>
+        <div><label for="location">📍 Location</label><input id="location" placeholder="e.g., Emirates Stadium London"></div>
+        <div><label for="warmup">⏱️ Warm-up</label><input id="warmup" placeholder="e.g., 4:00 pm"></div>
+        <div><label for="kickoff">🕘 Kick-off</label><input id="kickoff" placeholder="e.g., 5:00 pm"></div>
+        <div><label for="kit">🧢 Kit</label><input id="kit" placeholder="e.g., Yellow"></div>
+        <div><label for="snacks">🍉 Snacks/Fruit</label><input id="snacks" placeholder="e.g., Dave Singhavic"></div>
+        <div><label for="arrival">⏰ Arrival</label><input id="arrival" placeholder="e.g., Park in VIP"></div>
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button id="copyBtn" class="good">Copy WhatsApp Text</button>
+        <button id="shareBtn" class="warn">Share…</button>
+        <button id="whatsBtn" class="secondary">Open in WhatsApp</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hdr">🗨️ WhatsApp Message Preview</div>
+      <div id="output" class="output">📢 *Game Day – Gameday JCL*
+⚽ *Villarreal FC* 🆚 *Barcelon FC*
+📅 Saturday 5th December
+📍 Emirates Stadium London
+⏱ *Warm-up:* 4:00 pm
+🕘 *Kick-off:* 5:00 pm
+🧢 *Kit:* Yellow
+🍉 *Snacks/Fruit:* Dave Singhavic
+⏰ *Arrival:* Park in VIP</div>
+    </div>
+
+    <div class="footer">
+      Tip: On iPhone, programmatic copy works best when hosted over HTTPS (GitHub Pages / Netlify). If opened as a local file, long-press the preview → Select All → Copy.
+    </div>
+  </div>
+
+<script>
+  const $ = sel => document.querySelector(sel);
+  const fields = {
+    titleSuffix: $('#titleSuffix'), home: $('#home'), away: $('#away'), date: $('#date'),
+    location: $('#location'), warmup: $('#warmup'), kickoff: $('#kickoff'),
+    kit: $('#kit'), snacks: $('#snacks'), arrival: $('#arrival'),
+  };
+  const defaults = {
+    titleSuffix: 'Gameday JCL', home: 'Villarreal FC', away: 'Barcelon FC', date: 'Saturday 5th December',
+    location: 'Emirates Stadium London', warmup: '4:00 pm', kickoff: '5:00 pm',
+    kit: 'Yellow', snacks: 'Dave Singhavic', arrival: 'Park in VIP'
+  };
+  function clean(s){ return (s||'').toString().replace(/[\u200B-\u200D\uFEFF]/g,'').trim(); }
+  function isAllCaps(s){ return /[A-Z]/.test(s) && s === s.toUpperCase(); }
+  function titleCaseChunk(chunk){
+    if (!chunk) return chunk; if (isAllCaps(chunk)) return chunk;
+    const lettersOnly = chunk.replace(/[^A-Za-z]/g,'');
+    if (lettersOnly.toUpperCase() === 'FC') return 'FC';
+    const parts = chunk.split(/([\-\/])/);
+    for (let i=0;i<parts.length;i++){
+      const p = parts[i]; if (!p || p === '-' || p === '/') continue;
+      if (isAllCaps(p)) { parts[i] = p; continue; }
+      parts[i] = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
+    } return parts.join('');
+  }
+  function titleCaseSafe(s){
+    s = clean(s); if (!s) return s; if (isAllCaps(s)) return s;
+    return s.split(/(\s+)/).map(seg => {
+      if (/^\s+$/.test(seg)) return seg;
+      const lettersOnly = seg.replace(/[^A-Za-z]/g,'');
+      if (lettersOnly.toUpperCase() === 'FC') return 'FC';
+      return titleCaseChunk(seg);
+    }).join('');
+  }
+  function formatArrival(s){ s = clean(s); if (!s) return s; if (isAllCaps(s)) return s; return s.charAt(0).toUpperCase() + s.slice(1); }
+  function normTime(s){
+    s = clean(s); if (!s) return '';
+    const m = s.match(/\b(\d{1,2})\s*:??\s*(\d{2})?\s*(a\.?m\.?|p\.?m\.?|am|pm)?\b/i);
+    if (!m) return s; const h = parseInt(m[1],10); const min = (m[2] ? m[2] : '00').padStart(2,'0');
+    const apRaw = m[3]; if (apRaw){ const ap = apRaw.toLowerCase().replace(/\./g,''); return h + ':' + min + ' ' + ap; } else { return h + ':' + min; }
+  }
+  function buildPreview(o){
+    const title = o.titleSuffix ? `Game Day – ${o.titleSuffix}` : 'Game Day';
+    return `📢 *${title}*
+⚽ *${o.home}* 🆚 *${o.away}*
+📅 ${o.date}
+📍 ${o.location}
+⏱ *Warm-up:* ${o.warm}
+🕘 *Kick-off:* ${o.ko}
+🧢 *Kit:* ${o.kit}
+🍉 *Snacks/Fruit:* ${o.snacks}
+⏰ *Arrival:* ${o.arrival}`;
+  }
+  function fieldOrDefault(key){ const v = clean(fields[key].value); return v ? v : defaults[key]; }
+  function gatherAndFormat(){
+    const raw = {
+      titleSuffix: fieldOrDefault('titleSuffix'), home: fieldOrDefault('home'), away: fieldOrDefault('away'), date: fieldOrDefault('date'),
+      location: fieldOrDefault('location'), warmup: fieldOrDefault('warmup'), kickoff: fieldOrDefault('kickoff'),
+      kit: fieldOrDefault('kit'), snacks: fieldOrDefault('snacks'), arrival: fieldOrDefault('arrival'),
+    };
+    return {
+      titleSuffix: titleCaseSafe(raw.titleSuffix), home: titleCaseSafe(raw.home), away: titleCaseSafe(raw.away),
+      date: titleCaseSafe(raw.date), location: titleCaseSafe(raw.location),
+      warm: normTime(raw.warmup), ko: normTime(raw.kickoff),
+      kit: titleCaseSafe(raw.kit), snacks: titleCaseSafe(raw.snacks),
+      arrival: formatArrival(raw.arrival),
+    };
+  }
+  function render(){ const f = gatherAndFormat(); $('#output').textContent = buildPreview(f); }
+
+  async function handleCopy(){
+    const txt = $('#output').textContent;
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(txt); }
+      else {
+        const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.top='-9999px';
+        document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      const btn = $('#copyBtn'); const old = btn.textContent; btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent = old, 1200);
+    } catch (e) { alert('Copy failed. Long-press the preview → Select All → Copy.'); }
+  }
+  async function handleShare(){ const txt = $('#output').textContent; if (navigator.share) { try { await navigator.share({ text: txt }); return; } catch(e){} } openWhatsApp(); }
+  function openWhatsApp(){ const txt = $('#output').textContent; const url = 'https://wa.me/?text=' + encodeURIComponent(txt); window.location.href = url; }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    render();
+    Object.values(fields).forEach(el => el.addEventListener('input', render));
+    Object.values(fields).forEach(el => el.addEventListener('change', render));
+    Object.values(fields).forEach(el => el.addEventListener('keyup', render));
+    Object.values(fields).forEach(el => el.addEventListener('blur', render));
+    const copyBtn = $('#copyBtn'); const shareBtn = $('#shareBtn'); const whatsBtn = $('#whatsBtn');
+    if (copyBtn) copyBtn.addEventListener('click', handleCopy);
+    if (shareBtn) shareBtn.addEventListener('click', handleShare);
+    if (whatsBtn) whatsBtn.addEventListener('click', openWhatsApp);
+  });
+</script>
+</body>
+</html>
