@@ -48,4 +48,4 @@ This repo includes a **GitHub Pages** workflow.
 ## 🧪 Versioning
 - **v1.0** — stable
 
-License: MIT (or your preference).
+License: MIT.
